@@ -1,8 +1,6 @@
 package com.nogotech.draganddropsample
 
-import android.view.DragEvent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -15,7 +13,7 @@ import com.nogotech.draganddropsample.databinding.ItemStringBinding
 /**
  * A [ListAdapter] for [String]s.
  */
-class RecyclerViewAdapter(private val clickListener: Listener) :
+class RecyclerViewAdapter(private val listener: Listener) :
     ListAdapter<String, RecyclerViewAdapter.StringViewHolder>(
         object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
@@ -62,6 +60,7 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                     TODO("Not yet implemented")
                 }
 
+                var from = 0
                 /**
                  * When an item changes its location that is currently selected
                  * this function is called
@@ -71,6 +70,8 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                     viewHolder?.let {
                         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                             it.itemView.alpha = 0.3f
+                            from = viewHolder.adapterPosition
+                            listener.onSelectedChanged(viewHolder.adapterPosition, true)
                         }
                     }
                 }
@@ -81,6 +82,22 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                     super.clearView(recyclerView, viewHolder)
                     viewHolder.itemView.alpha = 1.0f
+                    listener.onSelectedChanged(viewHolder.adapterPosition, false)
+                    listener
+                }
+
+                fun move(from: Int, to: Int) {
+                    val list = currentList.toMutableList()
+                    val fromLocation = list[from]
+                    list.removeAt(from)
+                    if (to < from) {
+                        //+1 because it start from 0 on the upside. otherwise it will not change the locations accordingly
+                        list.add(to + 1 , fromLocation)
+                    } else {
+                        //-1 because it start from length + 1 on the down side. otherwise it will not change the locations accordingly
+                        list.add(to - 1, fromLocation)
+                    }
+                    submitList(list)
                 }
 
             })
@@ -96,7 +113,7 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
     }
 
     override fun onBindViewHolder(holder: StringViewHolder, position: Int) {
-        holder.bind(getItem(position), itemTouchHelper, clickListener)
+        holder.bind(getItem(position), itemTouchHelper, listener)
     }
 
     /**
@@ -128,6 +145,6 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
     }
 }
 
-class Listener(val clickListener: (text: String) -> Unit) {
-    fun onClick(text: String) = clickListener(text)
+class Listener(val listener: (Int, Boolean) -> Unit) {
+    fun onSelectedChanged(position: Int, isSelected: Boolean) = listener(position, isSelected)
 }

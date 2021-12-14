@@ -16,8 +16,9 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
         binding.recyclerView.adapter = RecyclerViewAdapter(
-            Listener {
-                // Do nothing
+            Listener { position, isSelected ->
+                if (isSelected) viewModel.startSelectItem(position)
+                else viewModel.endSelectItem(position)
             }
         )
     }
