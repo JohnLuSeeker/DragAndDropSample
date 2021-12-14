@@ -68,7 +68,11 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                  */
                 override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                     super.onSelectedChanged(viewHolder, actionState)
-
+                    viewHolder?.let {
+                        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                            it.itemView.alpha = 0.3f
+                        }
+                    }
                 }
 
                 /**
@@ -76,6 +80,7 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                  */
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                     super.clearView(recyclerView, viewHolder)
+                    viewHolder.itemView.alpha = 1.0f
                 }
 
             })
