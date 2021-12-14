@@ -20,6 +20,6 @@
             android:text="@{text}"
             android:textSize="48sp"
             android:paddingHorizontal="8dp"
-            android:textColor="@color/black" />
+            android:textColor="@color/teal_700" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,6 +1,8 @@
 package com.nogotech.draganddropsample
 
+import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -40,7 +42,16 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
-                    TODO("Not yet implemented")
+                    //the position from where item has been moved
+                    val from = viewHolder.adapterPosition
+
+                    //the position where the item is moved
+                    val to = target.adapterPosition
+
+                    //telling the adapter to move the item
+                    notifyItemMoved(from, to)
+
+                    return true
                 }
 
                 /**
@@ -70,12 +81,17 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
             })
     }
 
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StringViewHolder {
         return StringViewHolder.from(parent)
     }
 
     override fun onBindViewHolder(holder: StringViewHolder, position: Int) {
-        holder.bind(getItem(position), clickListener)
+        holder.bind(getItem(position), itemTouchHelper, clickListener)
     }
 
     /**
@@ -86,8 +102,13 @@ class RecyclerViewAdapter(private val clickListener: Listener) :
 
         fun bind(
             text: String,
+            itemTouchHelper: ItemTouchHelper,
             clickListener: Listener
         ) {
+            binding.root.setOnDragListener { _, _ ->
+                itemTouchHelper.startDrag(this)
+                true
+            }
             binding.text = text
             binding.executePendingBindings()
         }
