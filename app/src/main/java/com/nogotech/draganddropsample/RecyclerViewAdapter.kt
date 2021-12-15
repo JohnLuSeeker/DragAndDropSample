@@ -76,6 +76,8 @@ class RecyclerViewAdapter(private val listener: Listener<String>) :
                             it.itemView.alpha = 0.3f
                             from = viewHolder.adapterPosition
                             listener.onSelectedChanged(viewHolder.adapterPosition, true)
+                        } else if(actionState == ItemTouchHelper.ACTION_STATE_IDLE){
+                            listener.onSelectedChanged(viewHolder.adapterPosition, false)
                         }
                     }
                 }
@@ -89,7 +91,6 @@ class RecyclerViewAdapter(private val listener: Listener<String>) :
                 ) {
                     super.clearView(recyclerView, viewHolder)
                     viewHolder.itemView.alpha = 1.0f
-                    listener.onSelectedChanged(viewHolder.adapterPosition, false)
                 }
             })
     }
