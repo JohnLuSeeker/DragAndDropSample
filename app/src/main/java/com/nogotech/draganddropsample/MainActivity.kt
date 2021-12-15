@@ -2,6 +2,7 @@ package com.nogotech.draganddropsample
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import com.nogotech.draganddropsample.databinding.ActivityMainBinding
@@ -16,7 +17,9 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
         binding.recyclerView.adapter = RecyclerViewAdapter(
-            Listener { position, isSelected ->
+            Listener({
+                Log.d("Item: ", it)
+            }) { position, isSelected ->
                 if (isSelected) viewModel.startSelectItem(position)
                 else viewModel.endSelectItem(position)
             }

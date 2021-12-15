@@ -13,7 +13,7 @@ import com.nogotech.draganddropsample.databinding.ItemStringBinding
 /**
  * A [ListAdapter] for [String]s.
  */
-class RecyclerViewAdapter(private val listener: Listener) :
+class RecyclerViewAdapter(private val listener: Listener<String>) :
     ListAdapter<String, RecyclerViewAdapter.StringViewHolder>(
         object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
@@ -61,11 +61,15 @@ class RecyclerViewAdapter(private val listener: Listener) :
                 }
 
                 var from = 0
+
                 /**
                  * When an item changes its location that is currently selected
                  * this function is called
                  */
-                override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                override fun onSelectedChanged(
+                    viewHolder: RecyclerView.ViewHolder?,
+                    actionState: Int
+                ) {
                     super.onSelectedChanged(viewHolder, actionState)
                     viewHolder?.let {
                         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
@@ -79,27 +83,14 @@ class RecyclerViewAdapter(private val listener: Listener) :
                 /**
                  * When we stop dragging , swiping or moving an item this function is called
                  */
-                override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                override fun clearView(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder
+                ) {
                     super.clearView(recyclerView, viewHolder)
                     viewHolder.itemView.alpha = 1.0f
                     listener.onSelectedChanged(viewHolder.adapterPosition, false)
-                    listener
                 }
-
-                fun move(from: Int, to: Int) {
-                    val list = currentList.toMutableList()
-                    val fromLocation = list[from]
-                    list.removeAt(from)
-                    if (to < from) {
-                        //+1 because it start from 0 on the upside. otherwise it will not change the locations accordingly
-                        list.add(to + 1 , fromLocation)
-                    } else {
-                        //-1 because it start from length + 1 on the down side. otherwise it will not change the locations accordingly
-                        list.add(to - 1, fromLocation)
-                    }
-                    submitList(list)
-                }
-
             })
     }
 
@@ -125,26 +116,34 @@ class RecyclerViewAdapter(private val listener: Listener) :
         fun bind(
             text: String,
             itemTouchHelper: ItemTouchHelper,
-            clickListener: Listener
+            listener: Listener<String>
         ) {
             binding.root.setOnDragListener { _, _ ->
                 itemTouchHelper.startDrag(this)
                 true
             }
             binding.text = text
+            binding.listener = listener
             binding.executePendingBindings()
         }
 
         companion object {
             fun from(parent: ViewGroup): StringViewHolder {
                 val binding =
-                    ItemStringBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                    ItemStringBinding.inflate(
+                        LayoutInflater.from(parent.context), parent, false
+                    )
                 return StringViewHolder(binding)
             }
         }
     }
 }
 
-class Listener(val listener: (Int, Boolean) -> Unit) {
-    fun onSelectedChanged(position: Int, isSelected: Boolean) = listener(position, isSelected)
+class Listener<T>(
+    val clickListener: (obj: T) -> Unit,
+    val selectedChangedListener: (Int, Boolean) -> Unit
+) {
+    fun onClicked(obj: T) = clickListener(obj)
+    fun onSelectedChanged(position: Int, isSelected: Boolean) =
+        selectedChangedListener(position, isSelected)
 }

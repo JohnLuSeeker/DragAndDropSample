@@ -6,11 +6,15 @@
         <variable
             name="text"
             type="String" />
+        <variable
+            name="listener"
+            type="com.nogotech.draganddropsample.Listener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> listener.onClicked(text)}">
 
         <TextView
             android:layout_width="match_parent"
